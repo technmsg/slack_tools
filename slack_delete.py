@@ -76,7 +76,7 @@ def list_file_ids(token, count, days=None):
         space_saved += f['size']
 
     print "[i]", len(toast), "files to toast, saving", locale.format("%d", space_saved, grouping=True), "bytes"
-    return [toast]
+    return toast
 
 
 def delete_files(token, file_ids):
@@ -94,7 +94,7 @@ def delete_files(token, file_ids):
         uri = 'https://slack.com/api/files.delete'
         response = json.loads(requests.get(uri, params=params).text)
         if response["ok"]:
-            print "[+] Deleted", count, "of", num_files, "-", file_id, json.loads(response.text)['ok']
+            print "[+] Deleted", count, "of", num_files, "-", file_id, response["ok"]
         else:
             print "[!] Unable to delete", count, "of", num_files, "-", file_id + ", reason:", response["error"]
 
