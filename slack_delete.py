@@ -11,17 +11,19 @@ def main():
     :return: void
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument("-t", "--token", required=True, help="Specifies the OAuth token used for authentication, created at (https://api.slack.com/docs/oauth-test-tokens)")
+    parser.add_argument("-t", "--token_file", type=argparse.FileType('r'), required=True, help="Contains the OAuth token used for authentication, created at (https://api.slack.com/docs/oauth-test-tokens)")
     parser.add_argument("-d", "--days", type=int, default=None, help="Delete files older than x days (optional)")
     parser.add_argument("-c", "--count", type=int, default=1000, help="Max amount of files to delete at once (optional)")
     options = parser.parse_args()
 
+    token = options.token_file.readline().strip()
+
     try:
         print "[*] Fetching file list.."
-        file_ids = list_file_ids(token=options.token, count=options.count, days=options.days)
+        file_ids = list_file_ids(token=token, count=options.count, days=options.days)
 
         print "[*] Deleting files.."
-        delete_files(token=options.token, file_ids=file_ids)
+        delete_files(token=token, file_ids=file_ids)
 
         print "[*] Done"
 
