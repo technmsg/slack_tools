@@ -56,18 +56,24 @@ def list_file_ids(token, count, days=None):
     response = requests.get(uri, params=params)
     files = json.loads(response.text)['files']
 
-    print "[i]", len(files), "files found"
+    print "[i]", len(files), "files found older than", days, "days"
     toast = []
     space_saved = 0
+    pinned_size = 0
+    pinned_count = 0
 
     # save the starred and pinned items, toast the rest
     for f in files:
         if 'is_starred' in f:
           #print f['id'], "is starred!"
+          pinned_size += f['size']
+          pinned_count += 1
           continue
 
         if 'pinned_to' in f:
           #print f['id'], "is pinned!"
+          pinned_size += f['size']
+          pinned_count += 1
           continue
 
         toast.append(f['id'])
@@ -75,6 +81,7 @@ def list_file_ids(token, count, days=None):
         # calculate space savings
         space_saved += f['size']
 
+    print "[i]", pinned_count, "pinned/starred consuming", locale.format("%d", pinned_size, grouping=True), "bytes"
     print "[i]", len(toast), "files to toast, saving", locale.format("%d", space_saved, grouping=True), "bytes"
     return toast
 
