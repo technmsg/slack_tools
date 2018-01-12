@@ -63,9 +63,12 @@ def list_file_ids(token, count, days=None):
     space_saved = 0
     pinned_size = 0
     pinned_count = 0
+    private_count = 0
+    private_size = 0
 
     # save the starred and pinned items, toast the rest
     for f in files:
+
         if 'is_starred' in f:
           #print f['id'], "is starred!"
           pinned_size += f['size']
@@ -78,12 +81,18 @@ def list_file_ids(token, count, days=None):
           pinned_count += 1
           continue
 
+        # log private files, but don't exclude them from removal
+        if not f["is_public"]:
+          private_size += f['size']
+          private_count += 1
+
         toast.append(f['id'])
 
         # calculate space savings
         space_saved += f['size']
 
     print "[i]", pinned_count, "pinned/starred consuming", locale.format("%d", pinned_size, grouping=True), "bytes"
+    print "[i]", private_count, "private consuming", locale.format("%d", private_size, grouping=True), "bytes"
     print "[i]", len(toast), "files to toast, saving", locale.format("%d", space_saved, grouping=True), "bytes"
     return toast
 
