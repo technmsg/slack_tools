@@ -50,9 +50,9 @@ def list_file_ids(token, count, days=None):
     :return: list
     """
     if days:
-        params = {'token': token, 'count': count, 'ts_to': calculate_days(days)}
+        params = {'token': token, 'count': count, 'ts_to': calculate_days(days), 'show_files_hidden_by_limit': 'true'}
     else:
-        params = {'token': token, 'count': count}
+        params = {'token': token, 'count': count, 'show_files_hidden_by_limit': 'true'}
 
     uri = 'https://slack.com/api/files.list'
     response = requests.get(uri, params=params)
@@ -65,9 +65,15 @@ def list_file_ids(token, count, days=None):
     pinned_count = 0
     private_count = 0
     private_size = 0
+    tomb_count = 0
 
     # save the starred and pinned items, toast the rest
     for f in files:
+        if 'mode' in f:
+          if f['mode'] == 'hidden_by_limit':
+            print f['id'], "is tombstoned: ", "channels", f['channels'], "ims", f['ims'], "groups", f['groups']
+            tomb_count += 1
+            continue
 
         if 'is_starred' in f:
           #print f['id'], "is starred!"
@@ -91,6 +97,7 @@ def list_file_ids(token, count, days=None):
         # calculate space savings
         space_saved += f['size']
 
+    print "[i]", tomb_count, "tombstoned, size unknown"
     print "[i]", pinned_count, "pinned/starred consuming", locale.format("%d", pinned_size, grouping=True), "bytes"
     print "[i]", private_count, "private consuming", locale.format("%d", private_size, grouping=True), "bytes"
     print "[i]", len(toast), "files to toast, saving", locale.format("%d", space_saved, grouping=True), "bytes"
